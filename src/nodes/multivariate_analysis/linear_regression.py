@@ -317,10 +317,10 @@ class LinearModelLearner:
 
         elif reg_type == RegressionType.PANEL.name:
             results, beta, se_beta, t_stats, p_values, ci_lower, ci_upper, y_pred, residuals, predictor_names, X, y, selected_alpha = (
-                self._fit_panel_model(df, y, pd, np)
+                self._fit_panel_model(df, y, pd, np, exec_context)
             )
             n_obs = len(y)
-            n_predictors = X.shape[1]
+            n_predictors = len(beta)  # Use actual number of coefficients, not X.shape[1]
 
         else:  # Ridge/Lasso
             model, beta, se_beta, t_stats, p_values, y_pred, residuals, predictor_names, X_design, selected_alpha = self._fit_regularized_model(
@@ -541,7 +541,7 @@ class LinearModelLearner:
             np.nan,  # selected_alpha not applicable for OLS
         )
 
-    def _fit_panel_model(self, df, y, pd, np):
+    def _fit_panel_model(self, df, y, pd, np, exec_context):
         """
         Fit panel regression model using linearmodels.
 
@@ -603,6 +603,18 @@ class LinearModelLearner:
         residuals = results.resids.values
         predictor_names = list(results.params.index)
 
+        # Check if any variables were dropped due to collinearity
+        if len(predictor_names) < len(predictors_final):
+            dropped_vars = set(predictors_final) - set(predictor_names)
+            effect_type = "fixed effects" if self.model_settings.panel_effect == PanelEffectType.FIXED.name else "random effects"
+            exec_context.set_warning(
+                f"One or more variables were dropped because they are collinear with the {effect_type}: {', '.join(sorted(dropped_vars))}"
+            )
+            # Filter X_panel to only include non-dropped variables for standardized coefficient computation
+            X_panel_filtered = X_panel[predictor_names]
+        else:
+            X_panel_filtered = X_panel
+
         return (
             results,
             beta,
@@ -614,7 +626,7 @@ class LinearModelLearner:
             y_pred,
             residuals,
             predictor_names,
-            X_panel.values,
+            X_panel_filtered.values,
             y_panel.values,
             np.nan,
         )
@@ -818,8 +830,8 @@ class LinearModelLearner:
         vif_assessments = []
 
         if reg_type == RegressionType.PANEL.name:
-            vif_values = [np.nan] * len(X[0]) if len(X.shape) > 1 else [np.nan]
-            vif_assessments = ["Not available for panel"] * len(vif_values)
+            vif_values = [np.nan] * n_predictors
+            vif_assessments = ["Not available for panel"] * n_predictors
             return vif_values, vif_assessments
 
         if self.model_settings.include_intercept:
