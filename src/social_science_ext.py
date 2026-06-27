@@ -57,8 +57,13 @@ main_category = knext.category(
 # with diverse network configurations, including those using NetBIOS or custom DNS setups.
 os.environ["GRPC_DNS_RESOLVER"] = "native"
 
-import nodes.arima_learner  # noqa: E402
-import nodes.arima_predictor  # noqa: E402
-import nodes.correspondence_analysis  # noqa: E402
-import nodes.factor_analysis  # noqa: E402
-import nodes.factor_scorer  # noqa: E402, F401
+import nodes.timeseries_analysis.acf_pacf_plot  # noqa: E402, F401
+import nodes.timeseries_analysis.arima_learner  # noqa: E402
+import nodes.timeseries_analysis.arima_predictor  # noqa: E402
+import nodes.timeseries_analysis.exponential_smoothing_learner  # noqa: E402
+import nodes.timeseries_analysis.exponential_smoothing_predictor  # noqa: E402
+import nodes.timeseries_analysis.ts_interpolator  # noqa: E402
+import nodes.multivariate_analysis.correspondence_analysis  # noqa: E402
+import nodes.multivariate_analysis.factor_analysis  # noqa: E402
+import nodes.multivariate_analysis.factor_scorer  # noqa: E402, F401
+import nodes.multivariate_analysis.linear_regression  # noqa: E402, F401
