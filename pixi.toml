@@ -10,16 +10,16 @@ format = { cmd = "ruff format ." }
 python = "*"
 pytest = "*"
 ruff = "*"
-knime-extension = "*"
-knime-python-base = "*"
-knime-python-versions = "5.12.*"
-knime-python-scripting = "5.12.*"
+knime-extension = "5.13.*"
+knime-python-base = "5.13.*"
+knime-python-versions = "5.13.*"
+knime-python-scripting = "5.13.*"
 factor-analyzer = ">=0.5.1,<0.6"
 linearmodels = "==7.0"
 
 [feature.build.dependencies]
 python = "*"
-knime-extension-bundling = "5.12.*"
+knime-extension-bundling = "6.1.*"
 
 [feature.debug.dependencies]
 debugpy = "*"
